@@ -35,6 +35,9 @@ module decode_the_signal;
         --------------------------------------------------------------------------*/
 
         // INSERT YOUR CODE HERE!
+        for(int i = 0; i<3; i++) begin
+            payload[i] = raw_telemetry[i*2 +1];
+        end
 
         $display("Part A - payload = %p", payload);
 
@@ -48,9 +51,18 @@ module decode_the_signal;
         --
         --  Both steps are streaming operators - see MATERIAL.md for the two
         --  idioms you need and how they combine.
+        -- BA.    A5.     D5
+        -- B A D A 5 5 
         --------------------------------------------------------------------------*/
 
-        // INSERT YOUR CODE HERE!
+        decoded_code = {
+            payload[0][7:4],
+            payload[1][7:4],
+            payload[2][7:4],
+            payload[0][3:0],
+            payload[1][3:0],
+            payload[2][3:0]
+        };
 
         decoded_hex = $sformatf("%h", decoded_code);
         decoded_hex = decoded_hex.toupper();

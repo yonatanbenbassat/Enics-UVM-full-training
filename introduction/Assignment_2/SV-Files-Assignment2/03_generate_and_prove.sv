@@ -34,7 +34,12 @@ module generate_and_prove;
         --   - urgent should be 1 about 20% of the time, 0 the other 80%
         --  See the Randomization section in MATERIAL.md for the syntax.
         --------------------------------------------------------------------------*/
-        // INSERT YOUR CODE HERE!
+        constraint c_length { 
+            length inside {[2:12]}; 
+            }
+        constraint c_urgent { 
+            urgent dist {1 := 20, 0 := 80}; 
+            }
     endclass
 
     int lengths[$];
@@ -51,6 +56,13 @@ module generate_and_prove;
     ------------------------------------------------------------------------------*/
     initial begin
         // INSERT YOUR CODE HERE!
+        stim_packet pkt;
+        for(int i = 0; i<5; i++) begin
+            pkt = new();
+            pkt.randomize();
+            $display("Packet %0d: length=%0d, urgent=%0b", i, pkt.length, pkt.urgent);
+            lengths.push_back(pkt.length);
+        end
     end
 
     /*------------------------------------------------------------------------------
@@ -72,7 +84,7 @@ module generate_and_prove;
         done = 1'b0;
     end
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         done <= 1'b0;
         if (!req && lengths.size() > 0) begin
             busy_cycles <= lengths.pop_front();
@@ -86,6 +98,13 @@ module generate_and_prove;
     end
 
     // INSERT YOUR CODE HERE! (p_mutex and p_eventual_done assert property blocks)
+    p_mutex:
+    assert property (@(posedge clk) !(req && done));
+
+    p_eventual_done:
+    assert property (@(posedge clk) req |-> ##[1:20] done);
+    
+
 
     // A watchdog so this never hangs forever if Part A hasn't been filled in
     // yet (lengths would stay empty and the wait below would never unblock).

@@ -39,7 +39,11 @@ module the_rendezvous;
     --  storage instead of a fresh copy per call.
     ------------------------------------------------------------------------------*/
     task automatic run_racer(string name, int lap_time);
-        // INSERT YOUR CODE HERE!
+        #lap_time;
+        finish_order.push_back(name);
+        racers_done++;
+        if (racers_done == 3)
+            -> race_finished;
     endtask
 
     /*------------------------------------------------------------------------------
@@ -48,7 +52,13 @@ module the_rendezvous;
     --  then wait for the race_finished event before printing the result.
     ------------------------------------------------------------------------------*/
     initial begin
-        // INSERT YOUR CODE HERE!
+        fork
+            run_racer(racer_names[0], racer_times[0]);
+            run_racer(racer_names[1], racer_times[1]);
+            run_racer(racer_names[2], racer_times[2]);
+        join_none
+        
+        @(race_finished);
 
         if (race_finished.triggered)
             $display("S U C C E S S - finish order: %0s, %0s, %0s", finish_order[0], finish_order[1], finish_order[2]);
